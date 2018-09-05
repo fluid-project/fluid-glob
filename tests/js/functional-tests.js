@@ -113,6 +113,24 @@ jqUnit.test("Test `findFiles` function.", function () {
             minimatchOptions: undefined,
             expected: ["./root-file.js"],
             expectedErrors: []
+        },
+        addCustomRules: {
+            message: "We should be able to add a custom 'invalid pattern' rule.",
+            includes: ["./package.json"],
+            excludes: [],
+            rules: { rejectAll: /.+/ },
+            expectedErrors: ["One or more glob patterns you have entered are invalid.  Cannot continue."]
+        },
+        removeDefaultRules: {
+            message: "We should be able to remove a default 'invalid pattern' rule.",
+            includes: ["./**/deep-file.js"],
+            excludes: [],
+            rules: {},
+            expected: [
+                "./node_modules/deep/deep-file.js",
+                "./src/deep/deep-file.js",
+                "./tests/deep/deep-file.js"
+            ]
         }
     };
 
@@ -127,19 +145,19 @@ jqUnit.test("Test `findFiles` function.", function () {
 
         TODO: Discuss this with Antranig
      */
-    jqUnit.expect(Object.keys(testDefs).length - 3);
+    jqUnit.expect(Object.keys(testDefs).length - 4); // exclude the four tests that should fail from the expect count.
     fluid.each(testDefs, function (testDef) {
         if (testDef.expectedErrors && testDef.expectedErrors.length) {
             jqUnit.expectFrameworkDiagnostic(
                 testDef.message,
                 function () {
-                    gpii.glob.findFiles(rootPath, testDef.includes, testDef.excludes, testDef.minimatchOptions);
+                    gpii.glob.findFiles(rootPath, testDef.includes, testDef.excludes, testDef.minimatchOptions, testDef.rules);
                 },
                 testDef.expectedErrors
             );
         }
         else {
-            var output = gpii.glob.findFiles(rootPath, testDef.includes, testDef.excludes, testDef.minimatchOptions);
+            var output = gpii.glob.findFiles(rootPath, testDef.includes, testDef.excludes, testDef.minimatchOptions, testDef.rules);
 
             // The output will always be full paths, so we need to add the root path to our expected output.
             var pathedExpected = testDef.expected.map(function (singlePath) {

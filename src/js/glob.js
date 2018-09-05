@@ -17,12 +17,14 @@ fluid.registerNamespace("gpii.glob");
  * @param {Array<String>} includes - An array of full or package-relative paths to include in the search results.
  * @param {Array<String>} excludes - An array of full or package-relative paths to exclude from the search results.
  * @param {Object} [minimatchOptions] - (Optional) options to pass to minimatch.
+ * @param {Object|Array<String>} [rules] - An optional set of custom rules defining invalid patterns as regular expressions.
  * @return {Array<String>} - An array of full paths to all matching files.
  *
  */
-gpii.glob.findFiles = function (rootPath, includes, excludes, minimatchOptions) {
-    var invalidIncludes = includes.filter(gpii.glob.isInvalidPattern);
-    var invalidExcludes = excludes.filter(gpii.glob.isInvalidPattern);
+gpii.glob.findFiles = function (rootPath, includes, excludes, minimatchOptions, rules) {
+    var filterByInvalid = gpii.glob.makePatternFilter(rules, true);
+    var invalidIncludes = includes.filter(filterByInvalid);
+    var invalidExcludes = excludes.filter(filterByInvalid);
     if (invalidIncludes.length || invalidExcludes.length) {
         if (invalidIncludes.length) {
             fluid.log("Invalid includes:", JSON.stringify(invalidIncludes, null, 2));
@@ -190,6 +192,15 @@ gpii.glob.dirMightMatch = function (pathToDir, pattern) {
     return true;
 };
 
+// The default list of regular expressions that describe "invalid globs".
+gpii.glob.invalidGlobRules = {
+    noLeadingWildcard: /^(\.\/)?\*\*/,
+    noWindowsSeparator: /\\/,
+    noParentDir: /^\.\./,
+    noRegexp: /[\[\](){}|]/,
+    noWholeRoot: /^\.\/$/
+};
+
 /**
  *
  * Check a pattern to ensure that it conforms to our constraints, which are:
@@ -199,35 +210,38 @@ gpii.glob.dirMightMatch = function (pathToDir, pattern) {
  * 3. It must not begin with a "parent" operator, i.e. "../"
  *
  * @param {String} pattern - A pattern to evaluate.
+ * @param {Object|Array<String>} [rules] - An optional set of custom rules defining invalid patterns as regular expressions.
  * @return {Boolean} `true` if the pattern is valid, `false` otherwise.
  *
  */
-gpii.glob.isValidPattern = function (pattern) {
+gpii.glob.isValidPattern = function (pattern, rules) {
     var positivePattern = gpii.glob.positivePattern(pattern);
-    // TODO: reorganise this.
-    return positivePattern.indexOf("**") !== 0 &&
-        positivePattern.indexOf("./**") !== 0  &&
-        positivePattern.indexOf("\\") === -1   &&
-        positivePattern.indexOf("../") !== 0   &&
-        positivePattern.indexOf("|") === -1    &&
-        positivePattern.indexOf("(") === -1    &&
-        positivePattern.indexOf(")") === -1    &&
-        positivePattern.indexOf("[") === -1    &&
-        positivePattern.indexOf("]") === -1    &&
-        positivePattern.indexOf("{") === -1    &&
-        positivePattern.indexOf("}") === -1    &&
-        positivePattern !== "./";
+    rules = rules || gpii.glob.invalidGlobRules;
+
+    var failsAtLeastOneRule = false;
+    fluid.each(rules, function (invalidGlobRule) {
+        if (positivePattern.match(invalidGlobRule)) {
+            failsAtLeastOneRule = true;
+        }
+    });
+
+    return !failsAtLeastOneRule;
 };
 
 /**
  *
- * Check a pattern to see if it is invalid.  Used in detecting and throwing an error when invalid patterns are present.
- * @param {String} pattern - A pattern to evaluate.
- * @return {Boolean} `true` if the pattern is invalid, `false` otherwise.
+ * Create a callback function to filter an array for valid/invalid patterns using `gpii.glob.isValidPattern`.
+ *
+ * @param {Object|Array<String>} [rules] - An optional set of custom rules defining invalid patterns as regular expressions.
+ * @param {Boolean} [showInvalid] - Set to true to include only invalid patterns.  By default, valid patterns are returned.
+ * @return {Function} A callback function that can be used with `Array.filter()`.
  *
  */
-gpii.glob.isInvalidPattern = function (pattern) {
-    return !gpii.glob.isValidPattern(pattern);
+gpii.glob.makePatternFilter = function (rules, showInvalid) {
+    return function (pattern) {
+        var isValid = gpii.glob.isValidPattern(pattern, rules);
+        return showInvalid ? !isValid : isValid;
+    };
 };
 
 /**

@@ -51,14 +51,28 @@ jqUnit.test("Test pattern validity checks.", function () {
         "./(this|that)/**/*.js"
     ];
 
+    // Scan valid patterns with the default rules.
     fluid.each(validPatterns, function (validPattern) {
         jqUnit.assertTrue("A valid pattern should be valid.", gpii.glob.isValidPattern(validPattern));
-        jqUnit.assertFalse("A valid pattern should not be invalid.", gpii.glob.isInvalidPattern(validPattern));
     });
 
+    // Scan invalid patterns with the default rules.
     fluid.each(invalidPatterns, function (invalidPattern) {
-        jqUnit.assertTrue("A valid pattern should be invalid.", gpii.glob.isInvalidPattern(invalidPattern));
         jqUnit.assertFalse("An invalid pattern should not be valid.", gpii.glob.isValidPattern(invalidPattern));
+    });
+
+    var strictRules = { rejectAll: /.+/ };
+
+    // Scan valid patterns with custom rules that make them invalid.
+    fluid.each(validPatterns, function (validPattern) {
+        jqUnit.assertFalse("We should be able to add a custom rule when checking validity.", gpii.glob.isValidPattern(validPattern, strictRules));
+    });
+
+    var noRules = {};
+
+    // Scan invalid patterns with custom rules that disable all checks.
+    fluid.each(invalidPatterns, function (invalidPattern) {
+        jqUnit.assertTrue("We should be able to remove default rules when testing validity.", gpii.glob.isValidPattern(invalidPattern, noRules));
     });
 });
 
