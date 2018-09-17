@@ -118,7 +118,12 @@ jqUnit.test("Test `findFiles` function.", function () {
             message: "We should be able to add a custom 'invalid pattern' rule.",
             includes: ["./package.json"],
             excludes: [],
-            rules: { rejectAll: /.+/ },
+            rules: {
+                rejectAll: {
+                    message: "contains one or more characters",
+                    pattern: /.+/
+                }
+            },
             expectedErrors: ["One or more glob patterns you have entered are invalid.  Cannot continue."]
         },
         removeDefaultRules: {

@@ -3,6 +3,15 @@
 This library provides a means determining a list of relevant files from a given location based on one or more "globbed"
 patterns.  Its API consists of a single static function (see below).
 
+This package was written as a drop-in replacement for grunt's globbing, which can be quite inefficient when working with
+packages that have a lot of dependencies or other content that you wish to exclude.  In short, grunt's strategy appears
+to be to perform a full recursive scan of the directory before deciding whether to include or exclude files.  By
+contrast, this package only recursively scans content that potentially matches at least one "include".  In real-world
+testing, this strategy seems to result in linting runs that take around a tenth of the time.
+
+To achieve this, this package disallows overly broad patterns like '**/*.js' and some of the more advanced features of
+the underlying library, such as regular expressions.  See below for full details.
+
 ## `gpii.glob.findFiles(rootPath, includes, [excludes], [minimatchOptions])`
 
 * `rootPath`: A full or package-relative directory to scan for matching files.

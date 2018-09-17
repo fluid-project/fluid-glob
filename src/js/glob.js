@@ -11,7 +11,9 @@ fluid.registerNamespace("gpii.glob");
 /**
  *
  * Find all files beneath a root directory based on a list of includes and excludes.  Includes and excludes can be
- * full, package-relative, or "glob" paths, see the README for examples.
+ * full, package-relative, or "glob" paths, see the README for examples.  All paths are "pathed", i.e. resolved relative
+ * to `rootPath`, and then passed to `gpii.glob.scanSingleDir` to begin a recursive scan (see those docs for more
+ * details).
  *
  * @param {String} rootPath - A full or package-relative path to search.
  * @param {Array<String>} includes - An array of full or package-relative paths to include in the search results.
@@ -22,15 +24,14 @@ fluid.registerNamespace("gpii.glob");
  *
  */
 gpii.glob.findFiles = function (rootPath, includes, excludes, minimatchOptions, rules) {
-    var filterByInvalid = gpii.glob.makePatternFilter(rules, true);
-    var invalidIncludes = includes.filter(filterByInvalid);
-    var invalidExcludes = excludes.filter(filterByInvalid);
+    var invalidIncludes = gpii.glob.validatePatternArray(includes, rules);
+    var invalidExcludes = gpii.glob.validatePatternArray(excludes, rules);
     if (invalidIncludes.length || invalidExcludes.length) {
         if (invalidIncludes.length) {
-            fluid.log("Invalid includes:", JSON.stringify(invalidIncludes, null, 2));
+            gpii.glob.logInvalidRuleFeedback(invalidIncludes);
         }
         if (invalidExcludes.length) {
-            fluid.log("Invalid excludes:", JSON.stringify(invalidExcludes, null, 2));
+            gpii.glob.logInvalidRuleFeedback(invalidExcludes);
         }
 
         fluid.fail("One or more glob patterns you have entered are invalid.  Cannot continue.");
@@ -44,7 +45,15 @@ gpii.glob.findFiles = function (rootPath, includes, excludes, minimatchOptions, 
 
 /**
  * Scan a single directory level and return a list of files and sub-directories that match the includes and do not
- * match the excludes.
+ * match the excludes.  Each entry returned must:
+ *
+ * 1. Match at least one include.
+ * 2. Not match a "negated include".
+ * 3. Not match an exclude (or be allowed by a "negated exclude").
+ *
+ * Each file encountered is added to the overall list if all of the above are true.  Directories are handled a bit
+ * differently, as we attempt to interpret whether the directory MIGHT contain content that matches an include.  If so,
+ * the directory is scanned using this same function, and any sub-matches are added to our results.
  *
  * @param {String} dirPath - A full path to the directory to scan.
  * @param {Array<String>} includes - An array of full or package-relative paths to include in the search results.
@@ -194,11 +203,26 @@ gpii.glob.dirMightMatch = function (pathToDir, pattern) {
 
 // The default list of regular expressions that describe "invalid globs".
 gpii.glob.invalidGlobRules = {
-    noLeadingWildcard: /^(\.\/)?\*\*/,
-    noWindowsSeparator: /\\/,
-    noParentDir: /^\.\./,
-    noRegexp: /[\[\](){}|]/,
-    noWholeRoot: /^\.\/$/
+    noLeadingWildcard: {
+        message: "contains a leading wildcard",
+        pattern: /^(\.\/)?\*\*/
+    },
+    noWindowsSeparator: {
+        message: "contains a windows separator",
+        pattern: /\\/
+    },
+    noParentDir: {
+        message: "contains a reference to a parent directory",
+        pattern: /^\.\./
+    },
+    noRegexp: {
+        message: "contains a character used to define a regular expression",
+        pattern: /[\[\](){}|]/
+    },
+    noWholeRoot: {
+        message: "contains a reference to the whole of the root directory",
+        pattern: /^\.\/$/
+    }
 };
 
 /**
@@ -211,21 +235,53 @@ gpii.glob.invalidGlobRules = {
  *
  * @param {String} pattern - A pattern to evaluate.
  * @param {Object|Array<String>} [rules] - An optional set of custom rules defining invalid patterns as regular expressions.
- * @return {Boolean} `true` if the pattern is valid, `false` otherwise.
+ * @return {Array<Object>} An array of invalid patterns and details about why they are invalid..
  *
  */
-gpii.glob.isValidPattern = function (pattern, rules) {
+gpii.glob.validatePattern = function (pattern, rules) {
     var positivePattern = gpii.glob.positivePattern(pattern);
     rules = rules || gpii.glob.invalidGlobRules;
 
-    var failsAtLeastOneRule = false;
+    var failures = [];
     fluid.each(rules, function (invalidGlobRule) {
-        if (positivePattern.match(invalidGlobRule)) {
-            failsAtLeastOneRule = true;
+        if (positivePattern.match(invalidGlobRule.pattern)) {
+            failures.push({
+                glob:  positivePattern,
+                error: invalidGlobRule.message
+            });
         }
     });
 
-    return !failsAtLeastOneRule;
+    return failures;
+};
+
+/**
+ *
+ * Scan an entire array of patterns using gpii.glob.validatePattern (see above) and combine the results.
+ *
+ * @param {Array<String>} patternArray - An array of patterns to evaluate.
+ * @param {Object|Array<String>} [rules] - An optional set of custom rules defining invalid patterns as regular expressions.
+ * @return {Array<Object>} An array of invalid patterns and details about why they are invalid..
+ *
+ */
+gpii.glob.validatePatternArray = function (patternArray, rules) {
+    var failures = [];
+    fluid.each(patternArray, function (pattern) {
+        failures = failures.concat(gpii.glob.validatePattern(pattern, rules));
+    });
+    return failures;
+};
+
+/**
+ *
+ * Log any invalid rules.
+ *
+ * @param {Array<Object>} violations - An array of violation objects, which contain a `glob` element (the failing pattern) and an `error` element (detailing why the pattern is invalid).
+ */
+gpii.glob.logInvalidRuleFeedback = function (violations) {
+    fluid.each(violations, function (violation) {
+        fluid.log("ERROR: Pattern '" + violation.glob + "' " + violation.error + ".");
+    });
 };
 
 /**
