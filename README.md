@@ -1,7 +1,7 @@
 # gpii-glob
 
-This library provides a means determining a list of relevant files from a given location based on one or more "globbed"
-patterns.  Its API consists of a single static function (see below).
+This library provides a means of determining a list of relevant files from a given location based on one or more
+"globbed" patterns.  Its API consists of a single static function (see below).
 
 This package was written as a drop-in replacement for grunt's globbing, which can be quite inefficient when working with
 packages that have a lot of dependencies or other content that you wish to exclude.  In short, grunt's strategy appears
