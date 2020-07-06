@@ -68,7 +68,6 @@ Let's start by demonstrating includes.  Content can only be brought into scope b
 ```javascript
 "use strict";
 var fluid = require("infusion");
-var fluid  = fluid.registerNamespace("fluid");
 
 require("fluid-glob");
 
@@ -93,7 +92,6 @@ Negated includes and excludes take precedence over includes, i.e. they remove ma
 ```javascript
 "use strict";
 var fluid = require("infusion");
-var fluid  = fluid.registerNamespace("fluid");
 
 require("fluid-glob");
 
@@ -114,7 +112,6 @@ A negated exclude takes precedence over both negated includes and regular exclud
 ```javascript
 "use strict";
 var fluid = require("infusion");
-var fluid  = fluid.registerNamespace("fluid");
 
 require("fluid-glob");
 
@@ -138,7 +135,6 @@ to the underlying "minimatch" library, you can change this behaviour as shown he
 ```javascript
 "use strict";
 var fluid = require("infusion");
-var fluid  = fluid.registerNamespace("fluid");
 
 require("fluid-glob");
 
