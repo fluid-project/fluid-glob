@@ -1,4 +1,4 @@
-# gpii-glob
+# fluid-glob
 
 This library provides a means of determining a list of relevant files from a given location based on one or more
 "globbed" patterns.  Its API consists of a single static function (see below).
@@ -12,7 +12,7 @@ testing, this strategy seems to result in linting runs that take around a tenth 
 To achieve this, this package disallows overly broad patterns like '**/*.js' and some of the more advanced features of
 the underlying library, such as regular expressions.  See below for full details.
 
-## `gpii.glob.findFiles(rootPath, includes, [excludes], [minimatchOptions])`
+## `fluid.glob.findFiles(rootPath, includes, [excludes], [minimatchOptions])`
 
 * `rootPath`: A full or package-relative directory to scan for matching files.
 * `includes`: An `Array` of glob patterns that should be included in the results.
@@ -68,18 +68,18 @@ Let's start by demonstrating includes.  Content can only be brought into scope b
 ```javascript
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
+var fluid  = fluid.registerNamespace("fluid");
 
-require("gpii-glob");
+require("fluid-glob");
 
 // Let's assume that `fluid.module.resolvePath("%my-package")` resolves to `/source/my-package` for the purposes of
 // these examples.
 fluid.require("%my-package");
 
-gpii.glob.findFiles("%my-package", [], [], {});
+fluid.glob.findFiles("%my-package", [], [], {});
 // Returns: An empty array, as there are no includes.
 
-gpii.glob.findFiles("%my-package", ["./src/**/*.js"], [], {});
+fluid.glob.findFiles("%my-package", ["./src/**/*.js"], [], {});
 // Returns: ["/source/my-package/src/js/index.js", "/source/my-package/src/lib/forked-deps.js"]
 ```
 
@@ -93,19 +93,19 @@ Negated includes and excludes take precedence over includes, i.e. they remove ma
 ```javascript
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
+var fluid  = fluid.registerNamespace("fluid");
 
-require("gpii-glob");
+require("fluid-glob");
 
 // Let's assume that `fluid.module.resolvePath("%my-package")` resolves to `/source/my-package` for the purposes of
 // these examples.
 fluid.require("%my-package");
 
-gpii.glob.findFiles("%my-package", ["./src/**/*.js", "!./src/lib/**/*.js"], [], {});
+fluid.glob.findFiles("%my-package", ["./src/**/*.js", "!./src/lib/**/*.js"], [], {});
 // Returns: ["/source/my-package/src/js/index.js"]
 
 // A negated include is basically the same as an exclude.
-gpii.glob.findFiles("%my-package", ["./src/**/*.js"], ["./src/lib/**/*.js"], {});
+fluid.glob.findFiles("%my-package", ["./src/**/*.js"], ["./src/lib/**/*.js"], {});
 // Also returns: ["/source/my-package/src/js/index.js"]
 ```
 
@@ -114,16 +114,16 @@ A negated exclude takes precedence over both negated includes and regular exclud
 ```javascript
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
+var fluid  = fluid.registerNamespace("fluid");
 
-require("gpii-glob");
+require("fluid-glob");
 
 // Let's assume that `fluid.module.resolvePath("%my-package")` resolves to `/source/my-package` for the purposes of
 // these examples.
 fluid.require("%my-package");
 
 // A negated exclude takes precedence over both negated includes and regular excludes.
-gpii.glob.findFiles("%my-package", ["./tests/**/*.js"], ["./tests/js/**/*.js", "!./tests/js/test1.js"], {});
+fluid.glob.findFiles("%my-package", ["./tests/**/*.js"], ["./tests/js/**/*.js", "!./tests/js/test1.js"], {});
 // Returns: [
 //  "/source/my-package/tests/all-tests.js",
 //  "/source/my-package/tests/js/test1.js",
@@ -138,20 +138,20 @@ to the underlying "minimatch" library, you can change this behaviour as shown he
 ```javascript
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
+var fluid  = fluid.registerNamespace("fluid");
 
-require("gpii-glob");
+require("fluid-glob");
 
 // Let's assume that `fluid.module.resolvePath("%my-package")` resolves to `/source/my-package` for the purposes of
 // these examples.
 fluid.require("%my-package");
 
 // A filename wildcard search with the default minimatch options.
-gpii.glob.findFiles("%my-package", ["./*.json"], [], {});
+fluid.glob.findFiles("%my-package", ["./*.json"], [], {});
 // Returns: ["/source/my-package/package.json"]
 
 // A filename wildcard search with custom minimatch options.
-gpii.glob.findFiles("%my-package", ["./*.json"], [], { dot: true });
+fluid.glob.findFiles("%my-package", ["./*.json"], [], { dot: true });
 // Returns: ["/source/my-package/.eslintrc.json", "/source/my-package/package.json"]
 ```
 

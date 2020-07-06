@@ -1,11 +1,10 @@
 "use strict";
 var fluid  = require("infusion");
-var gpii   = fluid.registerNamespace("gpii");
 var jqUnit = require("node-jqunit");
 
 require("../../");
 
-jqUnit.module("Unit tests for gpii-glob package.");
+jqUnit.module("Unit tests for fluid-glob package.");
 
 jqUnit.test("Test positive and negative pattern filtering.", function () {
     var testDefs = {
@@ -24,10 +23,10 @@ jqUnit.test("Test positive and negative pattern filtering.", function () {
     };
 
     fluid.each(testDefs, function (testDef) {
-        var positives = gpii.glob.positivePatterns(testDef.input);
+        var positives = fluid.glob.positivePatterns(testDef.input);
         jqUnit.assertDeepEq(testDef.message + ": positive matches", testDef.expectedPositive, positives);
 
-        var negatives = gpii.glob.negativePatterns(testDef.input);
+        var negatives = fluid.glob.negativePatterns(testDef.input);
         jqUnit.assertDeepEq(testDef.message + ": negative matches", testDef.expectedNegative, negatives);
     });
 });
@@ -53,13 +52,13 @@ jqUnit.test("Test pattern validity checks.", function () {
 
     // Scan valid patterns with the default rules.
     fluid.each(validPatterns, function (validPattern) {
-        var violations = gpii.glob.validatePattern(validPattern);
+        var violations = fluid.glob.validatePattern(validPattern);
         jqUnit.assertTrue("A valid pattern should be valid.", violations.length === 0);
     });
 
     // Scan invalid patterns with the default rules.
     fluid.each(invalidPatterns, function (invalidPattern) {
-        var violations = gpii.glob.validatePattern(invalidPattern);
+        var violations = fluid.glob.validatePattern(invalidPattern);
         jqUnit.assertTrue("An invalid pattern should not be valid.", violations.length > 0);
     });
 
@@ -72,7 +71,7 @@ jqUnit.test("Test pattern validity checks.", function () {
 
     // Scan valid patterns with custom rules that make them invalid.
     fluid.each(validPatterns, function (validPattern) {
-        var violations = gpii.glob.validatePattern(validPattern, strictRules);
+        var violations = fluid.glob.validatePattern(validPattern, strictRules);
         jqUnit.assertTrue("We should be able to add a custom rule when checking validity.", violations.length > 0);
     });
 
@@ -80,7 +79,7 @@ jqUnit.test("Test pattern validity checks.", function () {
 
     // Scan invalid patterns with custom rules that disable all checks.
     fluid.each(invalidPatterns, function (invalidPattern) {
-        var violations = gpii.glob.validatePattern(invalidPattern, noRules);
+        var violations = fluid.glob.validatePattern(invalidPattern, noRules);
         jqUnit.assertTrue("We should be able to remove default rules when testing validity.", violations.length === 0);
     });
 });
@@ -127,11 +126,11 @@ jqUnit.test("Test single pattern matching.", function () {
 
     fluid.each(testDefs, function (testDef) {
         fluid.each(fluid.makeArray(testDef.positive), function (shouldMatch) {
-            jqUnit.assertTrue(testDef.message + ": positive matching", gpii.glob.matchesSinglePattern(shouldMatch, testDef.pattern));
+            jqUnit.assertTrue(testDef.message + ": positive matching", fluid.glob.matchesSinglePattern(shouldMatch, testDef.pattern));
         });
 
         fluid.each(fluid.makeArray(testDef.negative), function (shouldNotMatch) {
-            jqUnit.assertFalse(testDef.message + ": negative matching", gpii.glob.matchesSinglePattern(shouldNotMatch, testDef.pattern));
+            jqUnit.assertFalse(testDef.message + ": negative matching", fluid.glob.matchesSinglePattern(shouldNotMatch, testDef.pattern));
         });
     });
 });
@@ -161,7 +160,7 @@ jqUnit.test("Test `sanitisePath` function", function () {
     };
 
     fluid.each(testDefs, function (testDef) {
-        var output = gpii.glob.sanitisePath(testDef.input);
+        var output = fluid.glob.sanitisePath(testDef.input);
         jqUnit.assertEquals(testDef.message, testDef.expected, output);
     });
 });
@@ -195,7 +194,7 @@ jqUnit.test("Test `addPathToPatterns` function.", function () {
     };
 
     fluid.each(testDefs, function (testDef) {
-        var output = gpii.glob.addPathToPatterns(testDef.rootPath, testDef.patterns);
+        var output = fluid.glob.addPathToPatterns(testDef.rootPath, testDef.patterns);
         jqUnit.assertDeepEq(testDef.message, testDef.expected, output);
     });
 });
@@ -218,11 +217,11 @@ jqUnit.test("Test `dirMightMatch` function.", function () {
 
     fluid.each(testDefs, function (testDef) {
         fluid.each(testDef.hits, function (shouldMatch, index) {
-            var matches = gpii.glob.dirMightMatch(shouldMatch, testDef.pattern);
+            var matches = fluid.glob.dirMightMatch(shouldMatch, testDef.pattern);
             jqUnit.assertTrue(testDef.message + ": hit " + index, matches);
         });
         fluid.each(testDef.misses, function (shouldNotMatch, index) {
-            var matches = gpii.glob.dirMightMatch(shouldNotMatch, testDef.pattern);
+            var matches = fluid.glob.dirMightMatch(shouldNotMatch, testDef.pattern);
             jqUnit.assertFalse(testDef.message + ": miss " + index, matches);
         });
     });
