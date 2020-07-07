@@ -18,8 +18,7 @@
     "devDependencies": {
         "eslint": "7.4.0",
         "eslint-config-fluid": "1.4.0",
-        "eslint-plugin-markdown": "1.0.2",
-        "fluid-grunt-lint-all": "1.0.8-dev.20200706T133632Z.3c1d6ce.FLUID-6524",
+        "fluid-grunt-lint-all": "1.0.8-dev.20200707T084514Z.e9e8d1d.FLUID-6524",
         "grunt": "1.2.0",
         "mkdirp": "1.0.4",
         "node-jqunit": "1.1.8",
