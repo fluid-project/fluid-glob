@@ -1,6 +1,5 @@
 "use strict";
 var fluid  = require("infusion");
-var gpii   = fluid.registerNamespace("gpii");
 var jqUnit = require("node-jqunit");
 var path   = require("path");
 
@@ -9,7 +8,7 @@ require("../../");
 jqUnit.module("End-to-end tests for directory searching.");
 
 jqUnit.test("Test `findFiles` function.", function () {
-    var rootPath = fluid.module.resolvePath("%gpii-glob/tests/find-fixture");
+    var rootPath = fluid.module.resolvePath("%fluid-glob/tests/find-fixture");
     var testDefs = {
         // TODO: Get these working, it fails but complains about the wrong number of expected assertions.
         invalidInclude: {
@@ -156,17 +155,17 @@ jqUnit.test("Test `findFiles` function.", function () {
             jqUnit.expectFrameworkDiagnostic(
                 testDef.message,
                 function () {
-                    gpii.glob.findFiles(rootPath, testDef.includes, testDef.excludes, testDef.minimatchOptions, testDef.rules);
+                    fluid.glob.findFiles(rootPath, testDef.includes, testDef.excludes, testDef.minimatchOptions, testDef.rules);
                 },
                 testDef.expectedErrors
             );
         }
         else {
-            var output = gpii.glob.findFiles(rootPath, testDef.includes, testDef.excludes, testDef.minimatchOptions, testDef.rules);
+            var output = fluid.glob.findFiles(rootPath, testDef.includes, testDef.excludes, testDef.minimatchOptions, testDef.rules);
 
             // The output will always be full paths, so we need to add the root path to our expected output.
             var pathedExpected = testDef.expected.map(function (singlePath) {
-                return path.posix.resolve(gpii.glob.sanitisePath(rootPath), singlePath);
+                return path.posix.resolve(fluid.glob.sanitisePath(rootPath), singlePath);
             });
 
             jqUnit.assertDeepEq(testDef.message, pathedExpected, output);

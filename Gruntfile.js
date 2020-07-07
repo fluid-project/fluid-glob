@@ -1,7 +1,7 @@
 /* eslint-env node */
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
+
 require("./");
 
 module.exports = function (grunt) {
@@ -14,10 +14,10 @@ module.exports = function (grunt) {
     };
 
     // We manually resolve our globs to raw paths to ensure that our code is used rather than
-    // the copy of ourselves we inherit from gpii-grunt-lint-all.  In regular usage, you should
+    // the copy of ourselves we inherit from fluid-grunt-lint-all.  In regular usage, you should
     // simply pass the globs themselves.
     var fullPathSources = fluid.transform(globbedSources, function (globbedPaths) {
-        return gpii.glob.findFiles("%gpii-glob", globbedPaths, [], {dot: true});
+        return fluid.glob.findFiles("%fluid-glob", globbedPaths, [], {dot: true});
     });
 
     grunt.initConfig({
@@ -27,6 +27,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks("gpii-grunt-lint-all");
+    grunt.loadNpmTasks("fluid-grunt-lint-all");
     grunt.registerTask("lint", "Perform all standard lint checks.", ["lint-all"]);
 };
