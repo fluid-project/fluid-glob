@@ -142,7 +142,7 @@ jqUnit.test("Test `findFiles` function.", function () {
         We use expectFrameworkDiagnostic for our "failure" tests, but not for others.  That function
         calls expect and in essence increments the expected failure count on its own.
 
-        https://github.com/fluid-project/infusion/blob/master/tests/test-core/jqUnit/js/jqUnit.js#L279
+        https://github.com/fluid-project/infusion/blob/main/tests/test-core/jqUnit/js/jqUnit.js#L279
 
         That count starts at 0 by default.  So, we have to tell it about the non-failures, but let it handle
         incrementing "expect" for the failures.
