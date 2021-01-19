@@ -4,25 +4,23 @@
     "description": "A library to standardise resolving \"globbed\" file patterns within Fluid projects.",
     "main": "index.js",
     "scripts": {
-        "pretest": "node node_modules/rimraf/bin.js coverage/* reports/*",
-        "test": "node node_modules/nyc/bin/nyc.js node tests/all-tests.js"
+        "lint": "fluid-lint-all",
+        "pretest": "npx rimraf coverage/* reports/*",
+        "test": "nyc node tests/all-tests.js"
     },
     "repository": "https://github.com/fluid-project/fluid-glob.git",
     "author": "Tony Atkins <tony@raisingthefloor.org>",
     "license": "BSD-3-Clause",
     "homepage": "https://github.com/fluid-project/fluid-glob#readme",
     "dependencies": {
-        "infusion": "3.0.0-dev.20200326T173810Z.24ddb2718",
+        "infusion": "3.0.0-dev.20201113T153152Z.32176dcbe.FLUID-6145",
         "minimatch": "3.0.4"
     },
     "devDependencies": {
-        "eslint": "7.4.0",
-        "eslint-config-fluid": "1.4.0",
-        "fluid-grunt-lint-all": "1.0.8-dev.20200707T084514Z.e9e8d1d.FLUID-6524",
-        "grunt": "1.2.0",
-        "mkdirp": "1.0.4",
+        "eslint": "7.17.0",
+        "eslint-config-fluid": "2.0.0",
+        "fluid-lint-all": "1.0.0",
         "node-jqunit": "1.1.8",
-        "nyc": "15.1.0",
-        "rimraf": "3.0.2"
+        "nyc": "15.1.0"
     }
 }
