@@ -1,6 +1,6 @@
 {
     "name": "fluid-glob",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "A library to standardise resolving \"globbed\" file patterns within Fluid projects.",
     "main": "index.js",
     "scripts": {
