@@ -13,14 +13,14 @@
     "license": "BSD-3-Clause",
     "homepage": "https://github.com/fluid-project/fluid-glob#readme",
     "dependencies": {
-        "infusion": "3.0.0-dev.20210312T233557Z.0b016a6dc.FLUID-6580",
-        "minimatch": "3.0.4"
+        "infusion": "4.6.0",
+        "minimatch": "3.1.2"
     },
     "devDependencies": {
-        "eslint": "7.17.0",
-        "eslint-config-fluid": "2.0.0",
-        "fluid-lint-all": "1.0.0",
-        "node-jqunit": "1.1.8",
+        "eslint": "8.32.0",
+        "eslint-config-fluid": "2.1.1",
+        "fluid-lint-all": "1.2.3",
+        "node-jqunit": "1.1.9",
         "nyc": "15.1.0"
     }
 }
